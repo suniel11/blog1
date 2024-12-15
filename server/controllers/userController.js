@@ -61,7 +61,9 @@ if (!user) {
   user.profilePicture = `/uploads/${req.file.filename}`
   await user.save()
 
-  return res.status(200).json({ message: "Profile picture updated successfully" , profilePicture: user.profilePicture });
+  return res.status(200).json({ message: "Profile picture updated successfully" , profilePicture: user.profilePicture , 
+    time : user.createdOn
+   });
  
 }
  }
@@ -72,5 +74,7 @@ if (!user) {
 
 
 }
+
+
 
  module.exports = { register , login , ProfilePic }
