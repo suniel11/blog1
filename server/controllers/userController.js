@@ -44,4 +44,33 @@ if(!user) return res.status(404).json({message:'User not found'})
 }
 }
 
- module.exports = { register , login }
+const ProfilePic = async ( req ,res ) => {
+ try { 
+
+const user = await User.findById(req.user.id)
+
+if (!user) {
+  return res.status(404).json({message: 'User not found'})
+} else { 
+
+
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  user.profilePicture = `/uploads/${req.file.filename}`
+  await user.save()
+
+  return res.status(200).json({ message: "Profile picture updated successfully" , profilePicture: user.profilePicture });
+ 
+}
+ }
+ catch (error) {
+  console.log(error)
+  res.status(400).json({message:'Error updating profile picture'});
+ }
+
+
+}
+
+ module.exports = { register , login , ProfilePic }
