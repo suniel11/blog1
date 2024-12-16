@@ -21,7 +21,7 @@ try {
 )
 console.log("Login Successfull")
 alert("Login successful")
-localStorage.setItem("token: " , response.data.token);
+localStorage.setItem("token" , response.data.token);
 } catch (error) {
     setError(error.message);
 

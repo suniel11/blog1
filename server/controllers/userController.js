@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose')
 
 
 
@@ -35,6 +36,8 @@ if(!user) return res.status(404).json({message:'User not found'})
       res.status(200).json({token ,
         name : user.name ,
         email : user.email ,
+        message : 'Logged in successfully' ,
+        ProfilePic : user.profilePicture
 
       })
       console.log(user ,
@@ -44,21 +47,20 @@ if(!user) return res.status(404).json({message:'User not found'})
 }
 }
 
+
 const ProfilePic = async ( req ,res ) => {
  try { 
-
 const user = await User.findById(req.user.id)
-
 if (!user) {
   return res.status(404).json({message: 'User not found'})
 } else { 
-
 
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
 
   user.profilePicture = `/uploads/${req.file.filename}`
+  
   await user.save()
 
   return res.status(200).json({ message: "Profile picture updated successfully" , profilePicture: user.profilePicture , 
@@ -76,5 +78,52 @@ if (!user) {
 }
 
 
+const getProfilePicture = async (req, res) => {
+  try {
+    console.log('User ID from token:', req.user.id); // Log user ID from token
 
- module.exports = { register , login , ProfilePic }
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.profilePicture) {
+      return res.status(404).json({ message: 'Profile picture not found' });
+    }
+
+    return res.status(200).json({
+      message: 'Profile picture fetched successfully',
+      profilePicture: user.profilePicture,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: 'Error fetching profile picture' });
+  }
+};
+
+const profile = async (req, res) => {
+try { 
+const user = await User.findById(req.user.id);
+if(!user) {
+  return res.status(404).json({ message: 'User not found' });
+ }
+ {
+ return res.status(200).json({ 
+  name : user.name , 
+  email : user.email ,
+  profilePicture : user.profilePicture ,
+  createdOn : user.createdOn 
+ })
+ }
+
+} catch (error) {
+  console.log(error)
+  res.status(400).json({ message: 'Error fetching profile' });
+}}
+
+
+
+
+
+
+ module.exports = { register , login , ProfilePic , getProfilePicture , profile  };

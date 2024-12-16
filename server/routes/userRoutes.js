@@ -1,4 +1,4 @@
-const { register , login , ProfilePic } = require('../controllers/userController');
+const { register , login , ProfilePic, getProfilePicture , profile } = require('../controllers/userController');
 const multer = require("multer");
 const bcrypt = require('bcrypt');
 const express = require('express');
@@ -11,18 +11,23 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
       cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
     },
-  });
-  
-  const upload = multer({ storage });
+    fileFilter: (req, file, cb) => {
+      const ext = path.extname(file.originalname)
+      if (ext !== '.jpg' || ext !== '.png') {
+          return cb(res.status(400).end('only jpg, png are allowed'), false);
+      }
+      cb(null, true)
+  }
+  }); 
+  const upload = multer({ storage : storage });
 
 router.post('/register' , register)
 router.post('/login' , login)
-router.post('/upload',  authMiddleware,
-    upload.single("profilePicture"),
+router.post('/upload',  authMiddleware,  upload.single("profilePicture"),
     ProfilePic
   );
-
-// Set up Multer for file uploads
+  router.get('/profilePicture', authMiddleware, getProfilePicture)
+  router.get('/profile',authMiddleware, profile)
 
 
 module.exports = router;
