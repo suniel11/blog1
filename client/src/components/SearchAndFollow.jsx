@@ -1,97 +1,127 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { Link } from 'react-router-dom'
 
-const SearchAndFollow = ({ profileData }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [error, setError] = useState(null);
-  const [followedUsers, setFollowedUsers] = useState(new Set()); // Track followed users
+const SearchAndFollow = () => {
+  const [users, setUsers] = useState([]) // All users
+  const [filteredUsers, setFilteredUsers] = useState([]) // Filtered users based on search
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [following, setFollowing] = useState({}) // Track following status of each user
+  const [searchQuery, setSearchQuery] = useState('') // State for search input
 
-  const token = localStorage.getItem('token');
-
-  // Search for users based on query
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.get(`http://localhost:5000/api/users/search?query=${searchQuery}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setSearchResults(response.data);
-    } catch (err) {
-      setError('Error searching users');
-      console.error(err);
-    }
-  };
-
-  // Follow the selected user
-  const handleFollow = async (userId) => {
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-        console.error('No token found');
-        return;
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true)
+      try {
+        const token = localStorage.getItem('token')
+        const response = await axios.get('http://localhost:5000/api/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setUsers(response.data)
+        setFilteredUsers(response.data) // Initialize filtered users
+      } catch (err) {
+        setError('Failed to load users')
+      } finally {
+        setLoading(false)
       }
-      
-      console.log('Following user with ID:', userId);
+    }
 
+    fetchUsers()
+  }, [])
+
+  const handleFollow = async (userId) => {
+    const token = localStorage.getItem('token')
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/users/follow/${userId}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // After successful follow, add the user to the followed set
-      setFollowedUsers(prev => new Set(prev).add(userId));
+      // Check if already following
+      if (following[userId]) {
+        // Unfollow logic
+        await axios.post(
+          `http://localhost:5000/api/users/unfollow/${userId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        setFollowing((prev) => ({ ...prev, [userId]: false }))
+      } else {
+        // Follow logic
+        await axios.post(
+          `http://localhost:5000/api/users/follow/${userId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        setFollowing((prev) => ({ ...prev, [userId]: true }))
+      }
     } catch (err) {
-      setError('Error following user');
-      console.error(err);
+      console.log(err)
+      setError('Failed to follow/unfollow user')
     }
-  };
+  }
+
+  const handleSearch = (e) => {
+    const query = e.target.value
+    setSearchQuery(query)
+
+    // Filter users based on name or email (case insensitive)
+    const filtered = users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(query.toLowerCase()) ||
+        user.email.toLowerCase().includes(query.toLowerCase())
+    )
+
+    setFilteredUsers(filtered)
+  }
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>{error}</div>
 
   return (
     <div className="space-y-4">
-      {/* Search form */}
-      <form onSubmit={handleSearch}>
+      {/* Search Bar */}
+      <div className="mb-4">
         <input
           type="text"
-          placeholder="Search users"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 text-black rounded-lg"
+          onChange={handleSearch}
+          placeholder="Search users..."
+          className="w-full px-4 py-2 rounded-lg text-gray-800 bg-gray-200 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button type="submit" className="w-full mt-2 bg-primary-600 text-white py-2 rounded-lg">Search</button>
-      </form>
-
-      {/* Search Results */}
-      {error && <div className="text-red-500">{error}</div>}
-      <div className="space-y-4">
-        {searchResults.map((user) => (
-          <div key={user._id} className="flex justify-between items-center">
-            <div className="flex items-center">
-              <img
-                src={`http://localhost:5000${user.profilePicture}`}
-                alt={user.name}
-                className="w-12 h-12 rounded-full"
-              />
-              <div className="ml-4">
-                <div className="font-bold">{user.name}</div>
-                <div className="text-sm text-gray-500">{user.email}</div>
-              </div>
-            </div>
-            <button
-              onClick={() => handleFollow(user._id)}
-              className={`ml-4 px-4 py-2 rounded-lg ${followedUsers.has(user._id) ? 'bg-gray-400' : 'bg-primary-600'} text-white`}
-            >
-              {followedUsers.has(user._id) ? 'Following' : 'Follow'}
-            </button>
-          </div>
-        ))}
       </div>
-    </div>
-  );
-};
 
-export default SearchAndFollow;
+      {/* User List */}
+      {filteredUsers.map((user) => (
+        <div key={user._id} className="flex items-center justify-between bg-gray-700 p-4 rounded-lg shadow-md">
+          <div className="text-white">
+            <Link
+              to={`/profile/${user._id}`} // Navigate to user profile page
+              className="text-xl font-bold hover:text-blue-400"
+            >
+              {user.name}
+            </Link>
+            <p className="text-sm text-gray-400">{user.email}</p>
+          </div>
+          <button
+            onClick={() => handleFollow(user._id)}
+            className={`px-4 py-2 rounded-lg text-white ${
+              following[user._id] ? 'bg-red-600' : 'bg-green-600'
+            }`}
+          >
+            {following[user._id] ? 'Unfollow' : 'Follow'}
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default SearchAndFollow

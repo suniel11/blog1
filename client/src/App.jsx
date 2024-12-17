@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 import Siderbar from './components/sidebar';
 import Homepage from './pages/Homepage';
 import Profile from './pages/Profile';
-
+import UserProfile from './components/UserProfile';
 
 function App() {
   
@@ -24,6 +24,7 @@ function App() {
   <Route path="/login" element={<Login/>} />
   <Route path="/register" element={<Register/>} />
   <Route path='/profile' element={<Profile/>} />
+  <Route path="/profile/:userId" element={<UserProfile />} />
 
 
     
