@@ -22,8 +22,21 @@ const userSchema = new Schema({
   createdOn: {
     type: Date,
     default: Date.now
-    }
-    });
+    },
+    friends: [
+      {type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    ],
+    // messages: [
+    //   {type: mongoose.Schema.Types.ObjectId, ref: 'Message' }
+    //   ],
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  });
+
+
+    
 
 // Bcrypt
 // userSchema.pre('save', async (next) =>  {

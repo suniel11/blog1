@@ -1,4 +1,4 @@
-const { register , login , ProfilePic, getProfilePicture , profile } = require('../controllers/userController');
+const { register , login , ProfilePic, getProfilePicture , profile, search  ,follow } = require('../controllers/userController');
 const multer = require("multer");
 const bcrypt = require('bcrypt');
 const express = require('express');
@@ -28,6 +28,8 @@ router.post('/upload',  authMiddleware,  upload.single("profilePicture"),
   );
   router.get('/profilePicture', authMiddleware, getProfilePicture)
   router.get('/profile',authMiddleware, profile)
+  router.get('/search' , authMiddleware , search)
+  router.post('/follow/:id' , authMiddleware , follow)
 
 
 module.exports = router;

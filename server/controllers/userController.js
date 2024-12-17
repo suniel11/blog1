@@ -36,6 +36,7 @@ if(!user) return res.status(404).json({message:'User not found'})
       res.status(200).json({token ,
         name : user.name ,
         email : user.email ,
+        friends : user.friends ,
         message : 'Logged in successfully' ,
         ProfilePic : user.profilePicture
 
@@ -122,8 +123,58 @@ if(!user) {
 }}
 
 
+const search = async (req, res) => {
+  try {
+    const {query} = req.query;
+
+    if(!query){
+      return res.status(400).json({ message: 'Please provide a search query' });
+    }
+
+    const users = await User.find({$or: [
+      {name: {$regex: query, $options: 'i'}},
+      {email: {$regex: query, $options: 'i'}},
+      ]}).select('name email profilePicture friends ')
+      res.status(200).json(users)
+
+  }catch(error){
+    console.log(error)
+    res.status(400).json({ message: 'Error searching' });
+  }}
 
 
 
+const follow = async (req, res) => {
+try {
+  const targetUserId = req.params.id;  // user to be followed
+  const currentUserId = req.user.id;  // user who is following/logged in
 
- module.exports = { register , login , ProfilePic , getProfilePicture , profile  };
+  if(targetUserId === currentUserId) {
+    return res.status(400).json({ message: 'You cannot follow yourself' });
+}
+
+const targetUser = await User.findById(targetUserId);
+const currentUser = await User.findById(currentUserId);
+
+if(!targetUser || !currentUser) {
+  return res.status(404).json({ message: 'User not found' });
+}
+
+if(currentUser.friends.includes(targetUserId)) {
+  return res.status(400).json({ message: 'You are already following this user' });
+}
+
+currentUser.friends.push(targetUserId)
+await currentUser.save();
+res.status(200).json({ message: 'User followed'  ,friends: currentUser.friends });
+
+}
+catch(error){
+  console.log(error)
+  res.status(400).json({ message: 'Error following user' });
+}
+}
+
+
+
+ module.exports = { register , login , ProfilePic , getProfilePicture , profile , search , follow };
