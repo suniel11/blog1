@@ -14,9 +14,8 @@ function App() {
   return (
   
   
-<div className="flex flex-col h-screen bg" >
+<div className="h-full bg-gray-900" >
 <Header />
-{/* <h1 className='text-2xl font-bold underline '> Heading</h1> */}
 
 
 <Routes>
@@ -29,7 +28,7 @@ function App() {
 
     
 </Routes>
-{/* <Footer /> */}
+<Footer />
 
 </div> 
   )

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useParams } from 'react-router-dom'
 
@@ -32,17 +32,11 @@ const UserProfile = () => {
   if (error) return <div className="text-center text-red-500">{error}</div>
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-lg mt-10">
+    <div className="w-full h-full max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-lg mt-10">
       {user ? (
         <>
-          {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-lg p-8 text-white text-center">
-            <h1 className="text-4xl font-semibold">{user.name}</h1>
-            <p className="text-lg text-gray-300">{user.email}</p>
-          </div>
-
-          {/* Profile Image and Bio */}
-          <div className="flex flex-col items-center justify-center mt-6 space-y-4">
+          <div className="flex items-center justify-start space-x-6 mb-8">
+            {/* User Profile Image */}
             <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-700">
               <img 
                 src={`http://localhost:5000${user.profilePicture}` || 'https://via.placeholder.com/150'} 
@@ -50,52 +44,45 @@ const UserProfile = () => {
                 className="w-full h-full object-cover" 
               />
             </div>
-            <p className="text-white text-sm">{user.bio || 'No bio available'}</p>
-          </div>
-
-          {/* Follow/Unfollow Button */}
-          <div className="flex justify-center mt-6">
-            <button className="px-6 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-              Follow
-            </button>
-          </div>
-
-          {/* Friends Section */}
-          <div className="mt-8">
-            <h3 className="text-xl text-white mb-4">Friends</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {user.friends && user.friends.length > 0 ? (
-                user.friends.map((friend, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-700">
-                      <img 
-                        src={`http://localhost:5000${friend.profilePicture}` || 'https://via.placeholder.com/40'} 
-                        alt="Friend" 
-                        className="w-full h-full object-cover" 
-                      />
-                    </div>
-                    <p className="text-sm text-gray-400">{friend.name}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-400">No friends yet.</p>
-              )}
+            <div>
+              <h2 className="text-4xl font-bold text-white">{user.name}</h2>
+              <p className="text-lg text-gray-400">{user.email}</p>
             </div>
           </div>
 
-          {/* Posts Section */}
-          <div className="mt-8">
-            <h3 className="text-xl text-white mb-4">Recent Posts</h3>
-            {user.posts && user.posts.length > 0 ? (
-              user.posts.map((post, index) => (
-                <div key={index} className="bg-gray-800 p-4 rounded-lg mb-4">
-                  <h4 className="text-lg text-white font-semibold">{post.title}</h4>
-                  <p className="text-sm text-gray-400">{post.body}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-gray-400">No posts yet.</p>
-            )}
+          {/* User Info Section */}
+          <div className="mt-8 space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-2xl text-white">About</h3>
+              <p className="text-lg text-gray-400">{user.bio || "This user hasn't added a bio yet."}</p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-2xl text-white">Friends</h3>
+              <ul>
+                {user.friends && user.friends.length > 0 ? (
+                  user.friends.map((friend, index) => (
+                    <li key={index} className="text-lg text-gray-400">{friend.name}</li>
+                  ))
+                ) : (
+                  <li className="text-lg text-gray-400">No friends yet.</li>
+                )}
+              </ul>
+            </div>
+
+            {/* Add any additional sections like posts, hobbies, etc. */}
+            <div className="space-y-2">
+              <h3 className="text-2xl text-white">Recent Posts</h3>
+              {user.posts && user.posts.length > 0 ? (
+                user.posts.map((post, index) => (
+                  <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md">
+                    <p className="text-lg text-white">{post.content}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-lg text-gray-400">No posts yet.</p>
+              )}
+            </div>
           </div>
         </>
       ) : (

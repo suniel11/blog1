@@ -101,15 +101,27 @@ const SearchAndFollow = () => {
       {/* User List */}
       {filteredUsers.map((user) => (
         <div key={user._id} className="flex items-center justify-between bg-gray-700 p-4 rounded-lg shadow-md">
-          <div className="text-white">
-            <Link
-              to={`/profile/${user._id}`} // Navigate to user profile page
-              className="text-xl font-bold hover:text-blue-400"
-            >
-              {user.name}
-            </Link>
-            <p className="text-sm text-gray-400">{user.email}</p>
+          <div className="flex items-center space-x-4">
+            {/* User Profile Image */}
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-600">
+              <img
+                src={`http://localhost:5000${user.profilePicture}` || 'https://via.placeholder.com/150'}
+                alt={`${user.name}'s Profile`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div>
+              <Link
+                to={`/profile/${user._id}`} // Navigate to user profile page
+                className="text-xl font-bold text-white hover:text-blue-400"
+              >
+                {user.name}
+              </Link>
+              <p className="text-sm text-gray-400">{user.email}</p>
+            </div>
           </div>
+
           <button
             onClick={() => handleFollow(user._id)}
             className={`px-4 py-2 rounded-lg text-white ${
