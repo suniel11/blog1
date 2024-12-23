@@ -33,22 +33,14 @@ const userSchema = new Schema({
       type: Date,
       default: Date.now,
     },
-  });
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  } ,{ versionKey: false } );
 
 
     
 
-// Bcrypt
-// userSchema.pre('save', async (next) =>  {
-//     const user = this;
-//     console.log(user)
-//    if(!user.isModified('password'))
-//     return next();
-// console.log('just before saving')
-// user.password = await bcrypt.hash(user.password, 10);
-// console.log('after hashing')
-// next();
-//  });
+
 
 
 module.exports = mongoose.model('User', userSchema);

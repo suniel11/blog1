@@ -37,6 +37,7 @@ if(!user) return res.status(404).json({message:'User not found'})
         name : user.name ,
         email : user.email ,
         friends : user.friends ,
+        userId : user._id ,
         message : 'Logged in successfully' ,
         ProfilePic : user.profilePicture
 
@@ -142,66 +143,72 @@ const search = async (req, res) => {
     res.status(400).json({ message: 'Error searching' });
   }}
 
-
-
+// Follow a user
 const follow = async (req, res) => {
-try {
-  const targetUserId = req.params.id;  // user to be followed
-  const currentUserId = req.user.id;  // user who is following/logged in
+  try {
+    const userId = req.params.userId;
+    const currentUser = req.user; // From the authMiddleware
+    // console.log('UserId:', req.params.userId);
 
-  if(targetUserId === currentUserId) {
-    return res.status(400).json({ message: 'You cannot follow yourself' });
-}
+    // Check if the user being followed exists
+    const followedUser = await User.findById(userId);
+    if (!followedUser) {
+      return res.status(404).send({ message: 'User not found' });
+    }
 
-const targetUser = await User.findById(targetUserId);
-const currentUser = await User.findById(currentUserId);
+    // console.log('Follow request received:', req.params.userId, req.user);
 
-if(!targetUser || !currentUser) {
-  return res.status(404).json({ message: 'User not found' });
-}
+    // Check if already following
+    if (currentUser.following.includes(userId)) {
+      return res.status(400).send({ message: 'You are already following this user.' });
+    }
 
-if(currentUser.friends.includes(targetUserId)) {
-  return res.status(400).json({ message: 'You are already following this user' });
-}
+    // Add to friends (following)
+    currentUser.following.push(userId);
+    await currentUser.save();
 
-currentUser.friends.push(targetUserId)
-await currentUser.save();
-res.status(200).json({ message: 'User followed'  ,friends: currentUser.friends });
+    // Add current user to followed user's friend list
+    followedUser.followers.push(currentUser._id);
+    await followedUser.save();
 
-}
-catch(error){
-  console.log(error)
-  res.status(400).json({ message: 'Error following user' });
-}}
-
+    res.status(200).send({ message: 'User followed', following: currentUser.following ,
+      user : currentUser ,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Something went wrong' });
+  }
+};
 
 const unfollow = async (req, res) => {
   try {
-    const targetUserId = req.params.id;  // user to be unfollowed
-    const currentUserId = req.user.id;  // user who is unfollowing/logged in
+    const userId = req.params.userId;
+    const currentUser = req.user; // From the authMiddleware
 
-    if(targetUserId === currentUserId) {
-      return res.status(400).json({ message: 'You cannot unfollow yourself' });
+    // Check if the user being unfollowed exists
+    const followedUser = await User.findById(userId);
+    if (!followedUser) {
+      return res.status(404).send({ message: 'User not found' });
     }
 
-    const targetUser = await User.findById(targetUserId);
-    const currentUser = await User.findById(currentUserId);
-
-    if(!targetUser || !currentUser) {
-      return res.status(404).json({ message: 'User not found' });
+    // Check if already not following
+    if (!currentUser.following.includes(userId)) {
+      return res.status(400).send({ message: 'You are not following this user.' });
     }
 
-    // Remove the target user from the current user's friends list
-    currentUser.friends = currentUser.friends.filter(
-      (friendId) => friendId.toString() !== targetUserId
-    );
-
+    // Remove from friends (unfollow)
+    currentUser.following = currentUser.following.filter(friend => friend.toString() !== userId);
     await currentUser.save();
-    res.status(200).json({ message: 'User unfollowed', friends: currentUser.friends });
+
+    followedUser.followers = followedUser.followers.filter(friend => friend.toString() !== currentUser._id.toString());
+    await followedUser.save();
+
+    res.status(200).send({ message: 'User unfollowed', following: currentUser.following });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ message: 'Error unfollowing user' });
-  }}
+    console.error(error);
+    res.status(500).send({ message: 'Something went wrong' });
+  }
+};
 
 
   const getUsers = async (req, res) => {
@@ -222,11 +229,47 @@ const unfollow = async (req, res) => {
         return res.status(404).json({ message: 'User not found' })
       }
   
+      const currentUserId = req.user._id
+
+      user.userId = currentUserId
       res.status(200).json(user)
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Server error' })
     }}
+   const following = async (req, res) => {
+      try {
+        const currentUserId = req.user.id;
+        const currentUser = await User.findById(currentUserId);
+    
+        if (!currentUser) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+    
+        // Fetch all users that the current user is following
+        const followingUsers = await User.find({ '_id': { $in: currentUser.following } });
+    
+        return res.status(200).json(followingUsers);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+      }
+    };
+    
+    const me = async (req, res) => {
+      try {
+        const user = await User.findById(req.userId); // Use req.userId here
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
+    };
+    
 
+    
 
- module.exports = { register , login , ProfilePic , getProfilePicture , profile , search , follow , unfollow , getUsers , getProfiles};
+ module.exports = { register , login , ProfilePic , getProfilePicture , profile , search , follow , unfollow , getUsers , getProfiles , following , me};

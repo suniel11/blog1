@@ -1,5 +1,6 @@
 import React from 'react'
 import SearchAndFollow from '../components/SearchAndFollow'
+import UserProfile from '../components/UserProfile'
 
 const Homepage = () => {
   return (
@@ -10,6 +11,7 @@ const Homepage = () => {
         </h2>
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <SearchAndFollow />
+       
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ const User = require('../models/User');
 
 const authMiddleware = async (req, res, next) => {
     const authHeader = req.header('Authorization');
+    
     // console.log("Authorization Header:", authHeader);
   
     const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
@@ -23,6 +24,7 @@ const authMiddleware = async (req, res, next) => {
   
       req.user = user;
       req.userId = decoded.id;
+      // console.log('Auth User:', req.user); 
       next();
     } catch (error) {
       console.error('JWT Verification Error:', error);

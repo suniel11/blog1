@@ -4,9 +4,12 @@ import { Link } from 'react-router-dom'
 const Header = () => {
   return (
     <>
-    <div className='flex justify-between items-center p-4 bg-gray-800 text-white h-1 w-full'>
+    <div className='flex justify-between items-center p-4 bg-gray-800 text-white h-1 w-full hover:animate-pulse  '>
       <span className='flex flex-row gap-10 justify-evenly font-bold'>
-      title 
+
+
+        <Link to={'/'}>title</Link>
+       
      <Link to={'/profile'}>Profile</Link> 
 
      </span>
@@ -18,6 +21,8 @@ const Header = () => {
         <Link to = '/register'>
          register    
        </Link>
+
+       <Link to={'/conversation'}>messages</Link>
       </span>
     </div>
     <div className='flex'>

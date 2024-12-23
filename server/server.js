@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const conversationRoutes = require('./routes/conversationRoutes');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
@@ -30,6 +31,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 // API Routes
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/conversations' , conversationRoutes)
 
 // Start server
 const PORT = process.env.PORT || 5000;
