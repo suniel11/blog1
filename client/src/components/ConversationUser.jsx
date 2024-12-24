@@ -19,6 +19,8 @@ const ConversationsUser = () => {
           },
         });
         setConversations(response.data);
+        const data =  response.data[0].participants
+        console.log(data.participant)
       } catch (err) {
         setError('Failed to fetch conversations');
         console.error(err);
@@ -40,10 +42,12 @@ const ConversationsUser = () => {
         {conversations.map((conversation) => (
           <button
             key={conversation._id}
-            onClick={() => navigate(`/conversation/${conversation._id}`)}
+            onClick={() => navigate(`/messages/${conversation._id}`)}
             className="block w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded-lg"
           >
+            {conversation.profilePic}
 {conversation.title || `Conversation with ${conversation.participants.map((participant) => participant.name).join(', ')}`}
+
 </button>
         ))}
       </div>

@@ -27,6 +27,7 @@ const ConversationPage = () => {
           }
         );
         setMessages(response.data);
+        
       } catch (error) {
         console.error('Failed to fetch messages:', error);
       }
