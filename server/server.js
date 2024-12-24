@@ -6,6 +6,8 @@ const conversationRoutes = require('./routes/conversationRoutes');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const authMiddleware = require('./middleware/auth');
+const postRoutes = require('./routes/postRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -32,6 +34,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/conversations' , conversationRoutes)
+app.use('/api/posts' , postRoutes)
 
 // Start server
 const PORT = process.env.PORT || 5000;
