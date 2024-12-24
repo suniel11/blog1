@@ -129,7 +129,9 @@ const SearchAndFollow = () => {
       </div>
 
       {/* User List */}
-      {filteredUsers.map((user) => (
+      {filteredUsers
+      .filter((user) => user._id !== localStorage.getItem("userId")) // Exclude the logged-in user
+      .map((user) => (
         <div
           key={user._id}
           className="flex items-center justify-between bg-gray-700 p-4 rounded-lg shadow-md"
