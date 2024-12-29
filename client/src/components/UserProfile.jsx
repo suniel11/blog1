@@ -120,6 +120,7 @@ const UserProfile = () =>
           <p className="text-sm text-gray-400">{user.email}</p>
           <p className="text-sm text-gray-400">Following: {user.following.length}</p>
           <p className="text-sm text-gray-400">Followers: {user.followers.length}</p>
+          
         </div>
       </div>
 

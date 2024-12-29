@@ -7,15 +7,20 @@ exports.createPost = async (req, res) => {
   try {
     const  {description} = req.body;
     const userId = req.user._id;
-     // Get description and userId from the request body
+    const user = req.user.name;
+ 
+    // Get description and userId from the request body
     const newPost = new Post({
       description,
       userId,
+      user,
       image: req.file ? `/uploads/photos/${req.file.filename}` : null, // Handle image upload if provided
     });
 
     await newPost.save();
-    res.status(201).json(newPost); // Return the created post
+
+    res.status(201).json(newPost);
+    console.log(user) // Return the created post
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to create post" });
@@ -69,7 +74,7 @@ exports.deletePost = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    await post.remove(); // Delete the post
+    await post.deleteOne(); // Delete the post
     res.status(200).json({ message: "Post deleted successfully" }); // Return success message
   } catch (err) {
     console.error(err);
@@ -109,7 +114,7 @@ exports.unlikePost = async (req, res) => {
   try {
     const { postId } = req.params; // Get the postId from the URL params
     const { userId } = req.body; // Get the userId from the request body
-
+    
     const post = await Post.findById(postId); // Find the post by its ID
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
@@ -130,8 +135,8 @@ exports.unlikePost = async (req, res) => {
 exports.commentOnPost = async (req, res) => {
   try {
     const { postId } = req.params; // Get the postId from the URL params
-    const { userId, comment } = req.body; // Get userId and comment from the request body
-
+    const {  comment } = req.body; // Get userId and comment from the request body
+    const user = req.user
     const post = await Post.findById(postId); // Find the post by its ID
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
@@ -139,16 +144,29 @@ exports.commentOnPost = async (req, res) => {
 
     // Create a new comment
     const newComment = {
-      userId,
+      userId : req.user._id,
       comment,
+      name : req.user.name
+      
     };
 
     post.comments.push(newComment); // Add the new comment to the post
     await post.save();
+    console.log(user.name)
 
     res.status(200).json(post); // Return the updated post with the new comment
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to comment on post" });
+  }
+};
+
+exports.getUserPosts = async (req, res) => {
+  const userId = req.user._id; // Assuming you are using middleware to attach user data to the request.
+  try {
+    const userPosts = await Post.find({ userId }).sort({ createdAt: -1 });
+    res.status(200).json(userPosts);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user posts', details: err.message });
   }
 };

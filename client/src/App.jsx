@@ -12,7 +12,7 @@ import Conversations from './components/Conversations';
 import ConversationsUser from './components/ConversationUser';
 import Messages from './components/Mesages';
 import ConversationPage from './pages/ConversationPag';
-
+import Timeline from './pages/Timeline';
 function App() {
   
   return (
@@ -33,6 +33,8 @@ function App() {
   <Route path="/conversation" element={<ConversationsUser />} />
   <Route path="/conversation/:conversationId" element={<Messages />} />
   <Route path='/messages/:conversationId' element ={<ConversationPage/>} /> 
+  <Route path="/timeline" element={<Timeline />} />
+
 
 
     

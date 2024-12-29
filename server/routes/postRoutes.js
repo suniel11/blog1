@@ -40,4 +40,6 @@ router.post('/:postId/unlike', authMiddleware, postController.unlikePost);
 // Comment on a post
 router.post('/:postId/comment', authMiddleware, postController.commentOnPost);
 
+
+router.get('/my-posts' , authMiddleware , postController.getUserPosts)
 module.exports = router;

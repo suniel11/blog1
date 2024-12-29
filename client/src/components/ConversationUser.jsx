@@ -19,8 +19,9 @@ const ConversationsUser = () => {
           },
         });
         setConversations(response.data);
-        const data =  response.data[0].participants
-        console.log(data.participant)
+        const data =  response.data
+        console.log(data)
+        
       } catch (err) {
         setError('Failed to fetch conversations');
         console.error(err);
