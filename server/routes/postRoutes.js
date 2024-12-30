@@ -42,4 +42,6 @@ router.post('/:postId/comment', authMiddleware, postController.commentOnPost);
 
 
 router.get('/my-posts' , authMiddleware , postController.getUserPosts)
+
+router.get('/user/:userId' , authMiddleware , postController.userPosts)
 module.exports = router;

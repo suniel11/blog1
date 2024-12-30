@@ -104,7 +104,6 @@ const SearchAndFollow = () => {
       );
       // Redirect to the conversation page or show success
       console.log('Conversation started:', response.data);
-      // Redirect to the conversation page or display a success message
       window.location.href = `/messages/${response.data._id}`; // Assuming the response returns the conversation ID
     } catch (err) {
       console.error('Error starting conversation:', err);
@@ -129,58 +128,62 @@ const SearchAndFollow = () => {
       </div>
 
       {/* User List */}
-      {filteredUsers
-      .filter((user) => user._id !== localStorage.getItem("userId")) // Exclude the logged-in user
-      .map((user) => (
-        <div
-          key={user._id}
-          className="flex items-center justify-between bg-gray-700 p-4 rounded-lg shadow-md"
-        >
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-600">
-              <img
-                src={
-                  user.profilePicture
-                    ? `http://localhost:5000${user.profilePicture}`
-                    : 'https://via.placeholder.com/150'
-                }
-                alt={`${user.name}'s Profile`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div>
-              <Link
-                to={`/profile/${user._id}`}
-                className="text-xl font-bold text-white hover:text-blue-400"
-              >
-                {user.name}
-              </Link>
-              <p className="text-sm text-gray-400">{user.email}</p>
-            </div>
-          </div>
-
-          <div className="flex space-x-4">
-            <button
-              onClick={() => handleFollow(user._id)}
-              className={`px-4 py-2 rounded-lg text-white ${
-                following[user._id]
-                  ? 'bg-red-600 hover:bg-red-500'
-                  : 'bg-green-600 hover:bg-green-500'
-              }`}
+      {filteredUsers.length === 0 ? (
+        <div className="text-center text-white">No users found</div>
+      ) : (
+        filteredUsers
+          .filter((user) => user._id !== localStorage.getItem('userId')) // Exclude the logged-in user
+          .map((user) => (
+            <div
+              key={user._id}
+              className="flex items-center justify-between bg-gray-700 p-4 rounded-lg shadow-md"
             >
-              {following[user._id] ? 'Unfollow' : 'Follow'}
-            </button>
-            {following[user._id] && (
-              <button
-                onClick={() => handleStartConversation(user._id)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
-              >
-                message
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-600">
+                  <img
+                    src={
+                      user.profilePicture
+                        ? `http://localhost:5000${user.profilePicture}`
+                        : 'https://via.placeholder.com/150'
+                    }
+                    alt={`${user.name}'s Profile`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <Link
+                    to={`/profile/${user._id}`}
+                    className="text-xl font-bold text-white hover:text-blue-400"
+                  >
+                    {user.name}
+                  </Link>
+                  <p className="text-sm text-gray-400">{user.email}</p>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => handleFollow(user._id)}
+                  className={`px-4 py-2 rounded-lg text-white ${
+                    following[user._id]
+                      ? 'bg-red-600 hover:bg-red-500'
+                      : 'bg-green-600 hover:bg-green-500'
+                  }`}
+                >
+                  {following[user._id] ? 'Unfollow' : 'Follow'}
+                </button>
+                {following[user._id] && (
+                  <button
+                    onClick={() => handleStartConversation(user._id)}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
+                  >
+                    Message
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+      )}
     </div>
   );
 };

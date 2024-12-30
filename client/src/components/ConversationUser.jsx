@@ -37,9 +37,10 @@ const ConversationsUser = () => {
   if (error) return <div>{error}</div>;
 
   return (
+    
     <div className="text-green bg-black h-full">
       <h1 className="text-center text-2xl font-bold mb-4">Your Conversations</h1>
-      <div className="space-y-4">
+      <div className="space-y-4 h-full">
         {conversations.map((conversation) => (
           <button
             key={conversation._id}

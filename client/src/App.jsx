@@ -13,6 +13,7 @@ import ConversationsUser from './components/ConversationUser';
 import Messages from './components/Mesages';
 import ConversationPage from './pages/ConversationPag';
 import Timeline from './pages/Timeline';
+import SearchAndFollow from './components/SearchAndFollow';
 function App() {
   
   return (
@@ -24,7 +25,8 @@ function App() {
 
 
 <Routes>
-  <Route path="/" element={<Homepage/>} />
+  <Route path="/" element={<Timeline/>} />
+  <Route path="/search" element={<SearchAndFollow/>} />
   <Route path="/login" element={<Login/>} />
   <Route path="/register" element={<Register/>} />
   <Route path='/profile' element={<Profile/>} />

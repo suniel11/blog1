@@ -1,6 +1,7 @@
 // controllers/postController.js
 
 const Post = require("../models/Post");
+const mongoose = require('mongoose');
 
 // Create a new post
 exports.createPost = async (req, res) => {
@@ -85,51 +86,92 @@ exports.deletePost = async (req, res) => {
 // Like a post
 exports.likePost = async (req, res) => {
   try {
-    const { postId } = req.params; // Get the postId from the URL params
-    const { userId } = req.body; // Get the userId from the request body
+    const { postId } = req.params;
+    const { userId } = req.body;
 
-    const post = await Post.findById(postId); // Find the post by its ID
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
     }
 
-    // Check if the user has already liked the post
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    // Ensure user is not already in likes array
     if (post.likes.includes(userId)) {
       return res.status(400).json({ error: "You have already liked this post" });
     }
 
-    // Add the user to the likes array
     post.likes.push(userId);
     await post.save();
 
-    res.status(200).json(post); // Return the updated post
+    res.status(200).json(post);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to like post" });
   }
 };
 
+
 // Unlike a post
 exports.unlikePost = async (req, res) => {
   try {
-    const { postId } = req.params; // Get the postId from the URL params
-    const { userId } = req.body; // Get the userId from the request body
-    
-    const post = await Post.findById(postId); // Find the post by its ID
+    const { postId } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // Validate postId and userId
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      return res.status(400).json({ error: "Invalid postId" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid userId" });
+    }
+
+    const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    // Remove the user from the likes array
-    post.likes = post.likes.filter((id) => id.toString() !== userId);
+    // Ensure user is in likes array before removing
+    if (!post.likes.includes(userId)) {
+      return res.status(400).json({ error: "You have not liked this post" });
+    }
+
+    post.likes = post.likes.filter((like) => like && like.toString() !== userId);
     await post.save();
 
-    res.status(200).json(post); // Return the updated post
+    res.status(200).json(post);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to unlike post" });
+    console.error("Error in unlikePost controller:", err);
+    res.status(500).json({ error: "Failed to unlike post", details: err.message });
   }
 };
+
+exports.userPosts = async (req, res) => {
+  try {
+    const userId = req.params.userId;  // Extract userId from route parameters
+
+    // Fetch posts by userId
+    const posts = await Post.find({ userId }).populate('userId', 'name email');  // Populate user details if needed
+
+    if (!posts) {
+      return res.status(404).json({ message: "Posts not found for this user" });
+    }
+
+    res.status(200).json(posts);  // Return posts
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Server error while fetching posts" });
+  }
+}
+
+
+
+
+
 
 // Comment on a post
 exports.commentOnPost = async (req, res) => {

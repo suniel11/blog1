@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
-const UserProfile = () => 
-  {
-    const { conversationId } = useParams();
-  const { userId } = useParams(); 
+const UserProfile = () => {
+  const { userId } = useParams(); // Get userId from URL
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]); // State for storing user posts
   const [following, setFollowing] = useState(false); // Track if the current user is following this user
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -29,7 +28,15 @@ const UserProfile = () =>
         });
 
         const fetchedUser = response.data;
-        // console.log("userid profile" , response.data)
+
+        // Fetch posts of the user
+        const postsResponse = await axios.get(`http://localhost:5000/api/posts/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setPosts(postsResponse.data); // Set the posts fetched
 
         // Assuming that `currentUserId` is fetched dynamically (e.g., from the token or a separate endpoint)
         const currentUserResponse = await axios.get(`http://localhost:5000/api/users/me`, {
@@ -53,7 +60,102 @@ const UserProfile = () =>
   }, [userId]);
 
 
- 
+
+
+  const handleLikeToggle = async (postId, hasLiked) => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        throw new Error("No token or userId found");
+      }
+
+      const endpoint = hasLiked
+        ? `http://localhost:5000/api/posts/${postId}/unlike`
+        : `http://localhost:5000/api/posts/${postId}/like`;
+
+      console.log("Sending request to:", endpoint);
+      console.log("Request body:", { userId });
+
+      const response = await axios.post(
+        endpoint,
+        { userId }, // Include userId in the body
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // console.log("Response data:", response.data);
+
+      // Update the post's like status in the state
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId ? { ...post, likes: response.data.likes } : post
+        )
+      );
+    } catch (err) {
+      console.error("Error toggling like:", err);
+
+      if (err.response && err.response.data.error === "You have already liked this post") {
+        try {
+          // Attempt to unlike the post automatically
+          const unlikeEndpoint = `http://localhost:5000/api/posts/${postId}/unlike`;
+
+          const unlikeResponse = await axios.post(
+            unlikeEndpoint,
+            { userId: localStorage.getItem("userId") }, // Include userId in the body
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+
+          console.log("Unlike response data:", unlikeResponse.data);
+
+          // Update the post's like status in the state
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post._id === postId ? { ...post, likes: unlikeResponse.data.likes } : post
+            )
+          );
+        } catch (unlikeErr) {
+          console.error("Error unliking post:", unlikeErr);
+        }
+      }
+    }
+  };
+
+
+  const handleAddComment = async (postId, comment) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/posts/${postId}/comment`,
+        { comment },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId
+            ? { ...post, comments: response.data.comments }
+            : post
+        )
+      );
+      console.log(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+
 
   const handleMessageClick = async () => {
     try {
@@ -98,8 +200,6 @@ const UserProfile = () =>
       console.error("Error handling message action:", error.response?.data || error.message);
     }
   };
-  
-    
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -120,7 +220,6 @@ const UserProfile = () =>
           <p className="text-sm text-gray-400">{user.email}</p>
           <p className="text-sm text-gray-400">Following: {user.following.length}</p>
           <p className="text-sm text-gray-400">Followers: {user.followers.length}</p>
-          
         </div>
       </div>
 
@@ -135,6 +234,28 @@ const UserProfile = () =>
       ) : (
         <div className="text-gray-400 mt-4">You are not following this user.</div>
       )}
+
+      {/* User Posts */}
+      <div className="mt-8">
+        <h3 className="text-2xl font-semibold text-white mb-4">Posts</h3>
+        {posts.length === 0 ? (
+          <p className="text-gray-400">No posts available.</p>
+        ) : (
+          posts.map((post) => (
+            <div key={post._id} className="bg-gray-800 p-4 rounded-lg mb-4">
+              <h4 className="text-xl font-semibold text-white">{post.description}</h4>
+              {post.image && (
+          <img
+            src={`http://localhost:5000${post.image}`}
+            alt="Post"
+            className="rounded-lg  flex"
+          />
+        )}   
+
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
