@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -97,6 +98,9 @@ const Profile = () => {
             className="w-24 h-24 rounded-full border-2 border-primary-600 mb-4"
           />
           <h2 className="text-lg font-medium">{profileData.name}</h2>
+          <Link to="/friends" className=" flex bg-g text-blue-400 hover:underline">
+          <button class="bg-sky-500/100 text-white w-1/2 h-7">Friends</button>
+          </Link>
           <p className="text-sm text-gray-400">Email: {profileData.email}</p>
           <p className="text-sm text-gray-400">
             Account Created On: {new Date(profileData.createdOn).toLocaleDateString()}

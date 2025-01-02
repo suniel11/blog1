@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PostForm from '../components/PostForm';
 import PostItem from '../components/PostItem'; // Import AddPostForm
+import BackButton from '../components/BackButton';
 
 const Timeline = () => {
   const [posts, setPosts] = useState([]);
@@ -131,7 +132,8 @@ const Timeline = () => {
   }
 
   return (
-    <div className="flex flex-col items-center space-y-4 p-4">
+    <div className=" flex-col items-center space-y-4 p-4">
+      {/* <BackButton /> */}
       {/* AddPostForm at the top */}
       <PostItem onPostAdded={handlePostAdded} />
 

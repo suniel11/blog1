@@ -14,6 +14,7 @@ import Messages from './components/Mesages';
 import ConversationPage from './pages/ConversationPag';
 import Timeline from './pages/Timeline';
 import SearchAndFollow from './components/SearchAndFollow';
+import Friends from './components/Friends';
 function App() {
   
   return (
@@ -36,12 +37,13 @@ function App() {
   <Route path="/conversation/:conversationId" element={<Messages />} />
   <Route path='/messages/:conversationId' element ={<ConversationPage/>} /> 
   <Route path="/timeline" element={<Timeline />} />
+  <Route path='/friends' element={<Friends />} />
 
 
 
     
 </Routes>
-{/* <Footer /> */}
+<Footer />
 
 </div> 
   )

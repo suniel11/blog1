@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-
+import { Link } from 'react-router-dom';
 
 
 const PostForm = ({ post, onLikeToggle, onAddComment }) => {
@@ -39,7 +39,13 @@ const PostForm = ({ post, onLikeToggle, onAddComment }) => {
           alt={`${post.userId.name}'s profile`}
           className="w-8 h-8 rounded-full"
         />
+          <Link
+                    to={`/profile/${post.userId._id}`}
+                    className="text-xl font-bold text-white hover:text-blue-400"
+                  >
         <span className="text-gray-300">{post.userId.name}</span>
+
+                  </Link>
       </div>
       <div className="space-y-2">
         <p className="text-gray-300">{post.description}</p>

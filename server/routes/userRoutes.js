@@ -31,7 +31,7 @@ router.post('/upload',  authMiddleware,  upload.single("profilePicture"),
   router.get('/search' , authMiddleware , search)
   router.post('/follow/:userId' , authMiddleware , follow)
   router.post('/unfollow/:userId', authMiddleware, unfollow);
-  router.get('/following', authMiddleware, following);
+  router.get('/:currentUserId/following', authMiddleware, following);
  router.get('/' , authMiddleware , getUsers)
  router.get('/me' , authMiddleware , me)
  router.get('/:id' , authMiddleware  , getProfiles)

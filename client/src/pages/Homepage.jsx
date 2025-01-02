@@ -1,6 +1,7 @@
 import React from 'react'
 import SearchAndFollow from '../components/SearchAndFollow'
 import UserProfile from '../components/UserProfile'
+import BackButton from '../components/BackButton'
 
 const Homepage = () => {
 
@@ -10,7 +11,7 @@ const Homepage = () => {
     <div className="bg-gray-900 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
 
-
+    <BackButton/>
         
         <h2 className="text-3xl font-semibold text-white mb-6 text-center">
           Find and Follow Users

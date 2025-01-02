@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import PostForm from "./PostForm";
+
 
 const UserProfile = () => {
   const { userId } = useParams(); // Get userId from URL
@@ -88,7 +90,7 @@ const UserProfile = () => {
         }
       );
 
-      // console.log("Response data:", response.data);
+      console.log("Response data:", response.data);
 
       // Update the post's like status in the state
       setPosts((prevPosts) =>
@@ -96,6 +98,7 @@ const UserProfile = () => {
           post._id === postId ? { ...post, likes: response.data.likes } : post
         )
       );
+      console.log(response.data)
     } catch (err) {
       console.error("Error toggling like:", err);
 
@@ -244,18 +247,25 @@ const UserProfile = () => {
           posts.map((post) => (
             <div key={post._id} className="bg-gray-800 p-4 rounded-lg mb-4">
               <h4 className="text-xl font-semibold text-white">{post.description}</h4>
-              {post.image && (
+              <PostForm
+          key={post._id}
+          post={post}
+          onLikeToggle={handleLikeToggle}
+          onAddComment={handleAddComment}
+        />              
+        {/* {post.image && (
           <img
             src={`http://localhost:5000${post.image}`}
             alt="Post"
             className="rounded-lg  flex"
-          />
-        )}   
+          />  
+        )}    */}
 
             </div>
           ))
         )}
       </div>
+      
     </div>
   );
 };
